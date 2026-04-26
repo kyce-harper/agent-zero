@@ -122,6 +122,9 @@ need to set a model name, it checks what's available and chooses from a priority
 
 ---
 
+## Current Repo State
+Right now this is mostly the basic tool examples and serves to demonstrate the base of an agent loop. Soon there will be examples of file editing and creating code and running it through a testbench.
+
 ## Whats coming?
 Not just tools but in the future I want this repo to have tutorials for skills. This will be coming soon.
 
