@@ -132,34 +132,7 @@ This is useful for debugging and for understanding what the agent is actually do
 
 ---
 
-## 6. Rich terminal UI (medium)
-
-The `rich` library is already in `requirements.txt`. Here is a starting point for a
-nicer interface:
-
-```python
-from rich.console import Console
-from rich.panel import Panel
-
-console = Console()
-
-# Show a spinner while waiting for the model:
-with console.status("[bold cyan]Thinking...[/]"):
-    response = client.chat.completions.create(...)
-
-# Show tool calls as panels:
-for tc in msg.tool_calls or []:
-    args = json.loads(tc.function.arguments)
-    console.print(Panel(
-        f"[bold]{tc.function.name}[/]\n{args}",
-        title="Tool Call",
-        border_style="yellow",
-    ))
-```
-
----
-
-## 7. Swap to a different LLM provider (easy)
+## 6. Swap to a different LLM provider (easy)
 
 The agent uses the OpenAI SDK, which means any OpenAI-compatible provider works with a
 two-line change in `agent.py`. For example, to use real OpenAI:

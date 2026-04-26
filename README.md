@@ -148,5 +148,4 @@ input**. The 5-second timeout prevents infinite loops, but there is no sandbox. 
 ```
 openai>=1.0.0    OpenAI-compatible SDK — works with Groq (and real OpenAI) out of the box
 ddgs>=6.0.0      DuckDuckGo search, no API key required
-rich>=13.7.0     Terminal formatting (used in stretch goal UI)
 ```
