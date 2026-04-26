@@ -25,7 +25,7 @@ Behind that response, the agent:
 
 ## Full tutorial directions
 
-Navigate the `tutorial` folder for a step by step guide on how to setup your sandbox. I am planning a youtube series soon and will link them as soon as those are made. 
+Navigate the `tutorial` folder for a step by step guide on how to setup your sandbox + walkthrough some situations with tools and even guide on how to build your own. I am planning a youtube series soon  so you also have video format and will link them as soon as those are made. 
 
 ---
 
@@ -121,6 +121,9 @@ need to set a model name, it checks what's available and chooses from a priority
 `loop.py`. If Groq adds or removes models, it still works. Dont worry aboutt this to much if your goal is just to learn more about agents but you can read more about this in `loop.py`.
 
 ---
+
+## Whats coming?
+Not just tools but in the future I want this repo to have tutorials for skills. This will be coming soon.
 
 ## Security note
 
