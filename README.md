@@ -107,12 +107,6 @@ is under 200 lines of Python.
 
 ---
 
-## Adding your own tool
-
-See [tutorial/02_adding_a_tool.md](tutorial/02_adding_a_tool.md) for a step-by-step walkthrough.
-
----
-
 ## Why Groq?
 The goal of this repo is to educate people on the agent loop. Groq is the quickest way for anyone to create a free account (No card required) and start to play around with the agent loop (Its 100% free) and uses different models. It also is compatible with OpenAI SDK so for people who have api credits with them also feel free to use OpenAI also.
 
@@ -125,8 +119,12 @@ need to set a model name, it checks what's available and chooses from a priority
 ## Current Repo State
 Right now this is mostly the basic tool examples and serves to demonstrate the base of an agent loop. Soon there will be examples of file editing and creating code and running it through a testbench.
 
+---
+
 ## Whats coming?
 Not just tools but in the future I want this repo to have tutorials for skills. This will be coming soon.
+
+---
 
 ## Security note
 
