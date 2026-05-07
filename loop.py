@@ -39,6 +39,22 @@ def pick_model(client: OpenAI) -> str:
     )
 
 
+def _call_model(client: OpenAI, model: str, messages: list) -> object:
+    """Ask the model what to do next. Retries once on known Groq tool-call failures."""
+    for attempt in range(2):
+        try:
+            return client.chat.completions.create(
+                model=model,
+                tools=OPENAI_TOOLS,
+                messages=messages,
+                parallel_tool_calls=False,
+            )
+        except Exception as e:
+            if attempt == 0 and "tool_use_failed" in str(e):
+                continue
+            raise
+
+
 def run_agent_loop(client: OpenAI, user_message: str) -> str:
     """
     Run the agent loop for a single user message.
@@ -48,33 +64,18 @@ def run_agent_loop(client: OpenAI, user_message: str) -> str:
     messages = [{"role": "user", "content": user_message}]
 
     for turn in range(MAX_TURNS):
-        # Retry once on malformed tool call — an intermittent llama quirk on Groq.
-        for attempt in range(2):
-            try:
-                response = client.chat.completions.create(
-                    model=model,
-                    tools=OPENAI_TOOLS,
-                    messages=messages,
-                    parallel_tool_calls=False,
-                )
-                break
-            except Exception as e:
-                if attempt == 0 and "tool_use_failed" in str(e):
-                    continue
-                raise
+        response = _call_model(client, model, messages)
 
-        msg = response.choices[0].message
+        message = response.choices[0].message
         finish_reason = response.choices[0].finish_reason
-        
 
-        # Always append the assistant's response to history before branching.
-        messages.append(msg)
+        messages.append(message)
 
         if finish_reason == "stop":
-            return msg.content or ""
+            return message.content or ""
 
         if finish_reason == "tool_calls":
-            tool_results = _run_all_tools(msg.tool_calls)
+            tool_results = _run_all_tools(message.tool_calls)
             messages.extend(tool_results)
 
     return "Reached maximum turns without a final answer."
@@ -83,13 +84,12 @@ def run_agent_loop(client: OpenAI, user_message: str) -> str:
 def _run_all_tools(tool_calls) -> list[dict]:
     """Execute every tool call and return a list of tool result messages."""
     results = []
-    for tc in tool_calls:
-        # arguments comes back as a JSON string — parse it into a dict
-        args = json.loads(tc.function.arguments)
-        output = dispatch_tool(tc.function.name, args)
+    for tool_call in tool_calls:
+        args = json.loads(tool_call.function.arguments)
+        output = dispatch_tool(tool_call.function.name, args)
         results.append({
             "role": "tool",
-            "tool_call_id": tc.id,
+            "tool_call_id": tool_call.id,
             "content": str(output),
         })
     return results
