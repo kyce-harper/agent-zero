@@ -50,8 +50,7 @@ Every response from the model includes a `finish_reason` that tells you why it s
 | `"tool_calls"` | Model wants to call one or more tools. Run them and send results back. |
 | `"length"` | Response hit the token limit. Usually means you need a higher `max_tokens`. |
 
-In this project, `loop.py` only handles `"stop"` and `"tool_calls"`. For an educational
-project, that covers 99% of cases.
+In this project, `loop.py` only handles `"stop"` and `"tool_calls"`.
 
 ---
 
@@ -89,7 +88,6 @@ The model reads the result and decides what to do next — either call another t
 
 The `function.arguments` field comes back as a raw JSON string, not a dict. That's why
 `loop.py` calls `json.loads(tc.function.arguments)` before passing args to your tool handler.
-This is an OpenAI API quirk — worth knowing so it doesn't surprise you.
 
 ---
 
