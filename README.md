@@ -1,12 +1,12 @@
 # Agent-Zero
 
-A minimal AI agent framework built for learning. This project strips the coding agent down to exactly two things: a loop that talks to an LLM, and a set of tools the model can call.
+A minimal AI agent framework built for learning. This project strips the agent down to exactly two things: a loop that talks to an LLM, and a set of tools the model can call.
 
 ---
 
-## How does this work?
+## How it works
 
-You send a message. The agent figures out what tools it needs, calls them, and responds. You cant secure a screw with a hammer, so calling the right tools are important. Take this chat for example.
+You send a message. The agent figures out which tools it needs, calls them, and responds. The model decides when to use tools — your job is to define them.
 
 ```
 You: "What time is it right now?"
@@ -15,23 +15,54 @@ Agent: The current UTC time is 2026-04-25 18:42:07.
 ```
 
 Behind that response, the agent:
-1. Asked the model what to do
-2. The model called a usefull tool for the prompt: `get_current_time` to get the time
-3. The model put its results into the final answer
+1. Sent your question to the model
+2. The model requested the `get_current_time` tool to get the live time
+3. The model used the result to write its final answer
 
 ---
 
+## Quick start
+
+```bash
+# 1. Clone
+git clone https://github.com/kyce-harper/agent-zero
+cd agent-zero
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Get a free API key at https://console.groq.com
+#    Sign in → API Keys → Create API Key. No credit card needed.
+
+# 4. Set your key
+export GROQ_API_KEY=your_key_here
+
+# 5. Run
+python agent.py "What time is it?"
+python agent.py "Search the web for Python 3.12 new features"
+python agent.py "Remember that my name is Alex, then greet me by name"
+```
+
 ---
 
-## Full tutorial directions
+## Tutorial
 
-Navigate the `tutorial` folder for a step by step guide on how to setup your sandbox + walkthrough some situations with tools and even guide on how to build your own. I am planning a youtube series soon  so you also have video format and will link them as soon as those are made. 
+The `tutorial/` folder contains a six-part guided series:
+
+| Doc | Topic |
+|-----|-------|
+| `01-onboarding.md` | Get the project running |
+| `02-what-is-an-agent.md` | Chatbots vs. agents — the key difference |
+| `03-the-agent-loop.md` | Inside `loop.py` — how the loop works |
+| `04-how-tools-work.md` | Tool structure, registration, and the schema |
+| `05-your-first-tool.md` | Build and register a tool from scratch |
+| `06-sandbox-challenge.md` | Open-ended project: design your own toolkit |
+
+Start with `01-onboarding.md`.
 
 ---
 
 ## How agents work
-
-Visualize the framework like this:
 
 ```
 User message
@@ -47,31 +78,9 @@ User message
 Final response
 ```
 
-The model decides when to call tools, which tools to call, and what arguments to pass.
-Your job is to define the tools and keep the loop running. Think of yourself now as supplying the resources and creating a plan for the agent to execute using the tools you provide. Once again you cant expect any screws to be secured if you give your employee a hammer.
+The model decides when to call tools, which tools to call, and what arguments to pass. Your job is to define the tools and keep the loop running.
 
-See `loop.py` - it's ~50 lines and does everything described above with comments.
-
----
-
-## Quick start
-
-```bash
-# 1. Clone
-git clone https://github.com/your-username/agent-zero
-cd agent-zero
-
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Get a free API key at https://console.groq.com
-#    Sign in with Google → API Keys → Create API Key. No credit card needed.
-
-# 4. Run
-python agent.py "What time is it?"
-python agent.py "Search the web for Python 3.12 new features"
-python agent.py "Remember that my name is Alex, then greet me by name"
-```
+See `loop.py` — it's under 100 lines and does everything described above.
 
 ---
 
@@ -80,18 +89,17 @@ python agent.py "Remember that my name is Alex, then greet me by name"
 ```
 agent-zero/
 ├── agent.py      Entry point. Parses your message, calls run_agent_loop().
-├── loop.py       THE loop. Read this first: it's the whole framework.
+├── loop.py       The loop. Read this first: it's the whole framework.
 ├── registry.py   Wires tool files to the loop. Add new tools here.
 └── tools/
-    ├── get_time.py     Tool 1: get_current_time - no params, stdlib only
-    ├── read_file.py    Tool 2: read_file - reads files in this directory
-    ├── web_search.py   Tool 3: web_search - DuckDuckGo, no API key needed
-    ├── run_python.py   Tool 4: run_python_snippet - runs Python code
+    ├── get_time.py     Tool 1: get_current_time — no params, stdlib only
+    ├── read_file.py    Tool 2: read_file — reads files in this directory
+    ├── web_search.py   Tool 3: web_search — DuckDuckGo, no API key needed
+    ├── run_python.py   Tool 4: run_python_snippet — runs Python code
     └── memory.py       Tool 5: memory_store + memory_recall
 ```
 
-Start by reading `loop.py`, then `registry.py`, then any tool file. The whole codebase
-is under 200 lines of Python.
+Start by reading `loop.py`, then `registry.py`, then any tool file.
 
 ---
 
@@ -108,28 +116,26 @@ is under 200 lines of Python.
 ---
 
 ## Why Groq?
-The goal of this repo is to educate people on the agent loop. Groq is the quickest way for anyone to create a free account (No card required) and start to play around with the agent loop (Its 100% free) and uses different models. It also is compatible with OpenAI SDK so for people who have api credits with them also feel free to use OpenAI also.
 
-The agent automatically picks the best available model from your Groq account. You never
-need to set a model name, it checks what's available and chooses from a priority list in
-`loop.py`. If Groq adds or removes models, it still works. Dont worry aboutt this to much if your goal is just to learn more about agents but you can read more about this in `loop.py`.
+The goal of this repo is to teach the agent loop. Groq is the fastest way to get started — free account, no credit card required, and it's OpenAI SDK-compatible so the same code works if you already have OpenAI credits.
 
----
-
-## Current Repo State
-Right now this is mostly the basic tool examples and serves to demonstrate the base of an agent loop. Soon there will be examples of file editing and creating code and running it through a testbench.
+The agent automatically picks the best available model from your Groq account. You never need to set a model name manually. You can read more about how this works in `loop.py`.
 
 ---
 
-## Whats coming?
-Not just tools but in the future I want this repo to have tutorials for skills. This will be coming soon.
+## Roadmap
+
+- [ ] File editing and creation tools
+- [ ] Code generation + test-bench workflow example
+- [ ] Persistent memory (currently resets on restart)
+- [ ] Streaming output support
 
 ---
 
 ## Security note
 
 `run_python_snippet` executes real Python code in a subprocess. It is intentionally included
-as a teaching tool to show how agents can take real actions but **never expose it to untrusted
+as a teaching tool to show how agents can take real actions, but **never expose it to untrusted
 input**. The 5-second timeout prevents infinite loops, but there is no sandbox. Treat it like
 `eval()`.
 
@@ -137,13 +143,10 @@ input**. The 5-second timeout prevents infinite loops, but there is no sandbox. 
 
 ## Known limitations
 
-- **Memory is in-process.** `memory_store` values are lost when you restart. See
-  [tutorial/03_extending_the_agent.md](tutorial/03_extending_the_agent.md) for how to persist them.
-- **No streaming.** Responses appear all at once when the loop finishes. The OpenAI SDK
-  supports streaming; wiring it up is a good extension exercise.
+- **Memory is in-process.** `memory_store` values are lost when you restart.
+- **No streaming.** Responses appear all at once when the loop finishes.
 - **DuckDuckGo rate limits.** If you run many searches quickly, results may be empty.
-- **Single conversation.** Each run of `agent.py` starts fresh. There is no conversation history
-  across runs (yet).
+- **Single conversation.** Each run of `agent.py` starts fresh with no history from prior runs.
 
 ---
 
@@ -153,4 +156,3 @@ input**. The 5-second timeout prevents infinite loops, but there is no sandbox. 
 openai>=1.0.0    OpenAI-compatible SDK — works with Groq (and real OpenAI) out of the box
 ddgs>=6.0.0      DuckDuckGo search, no API key required
 ```
-
