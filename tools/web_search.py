@@ -1,7 +1,7 @@
 import time
 
 SCHEMA = {
-    "name": "web_search",
+    "name": "search_web",
     "description": (
         "Search the web using DuckDuckGo. "
         "Returns the top 3 results with title, URL, and a short snippet. "

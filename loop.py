@@ -18,8 +18,8 @@ from registry import OPENAI_TOOLS, dispatch_tool
 # Ordered by preference for tool-use reliability on Groq's free tier.
 # The agent picks the first one that's available on your account.
 _PREFERRED_MODELS = [
-    "llama-3.1-70b-versatile",
     "llama-3.3-70b-versatile",
+    "llama-3.1-70b-versatile",
     "llama-3.1-8b-instant",
     "mixtral-8x7b-32768",
     "gemma2-9b-it",
@@ -28,20 +28,22 @@ _PREFERRED_MODELS = [
 MAX_TURNS = 10  # safety ceiling — prevents runaway loops on bad tool output
 
 
-def pick_model(client: OpenAI) -> str:
+def pick_models(client: OpenAI) -> list[str]:
+    """Return all supported models in preference order."""
     available = {m.id for m in client.models.list()}
-    for model in _PREFERRED_MODELS:
-        if model in available:
-            return model
-    raise RuntimeError(
-        "No supported model found. Check https://console.groq.com/docs/models "
-        "and add a model name to _PREFERRED_MODELS in loop.py."
-    )
+    models = [m for m in _PREFERRED_MODELS if m in available]
+    if not models:
+        raise RuntimeError(
+            "No supported model found. Check https://console.groq.com/docs/models "
+            "and add a model name to _PREFERRED_MODELS in loop.py."
+        )
+    return models
 
 
-def _call_model(client: OpenAI, model: str, messages: list) -> object:
-    """Ask the model what to do next. Retries once on known Groq tool-call failures."""
-    for attempt in range(2):
+def _call_model(client: OpenAI, models: list[str], messages: list) -> object:
+    """Ask the model what to do next. Falls back to the next model on tool-call failures."""
+    last_error = None
+    for model in models:
         try:
             return client.chat.completions.create(
                 model=model,
@@ -50,9 +52,11 @@ def _call_model(client: OpenAI, model: str, messages: list) -> object:
                 parallel_tool_calls=False,
             )
         except Exception as e:
-            if attempt == 0 and "tool_use_failed" in str(e):
+            if "tool_use_failed" in str(e):
+                last_error = e
                 continue
             raise
+    raise last_error
 
 
 def run_agent_loop(client: OpenAI, user_message: str) -> str:
@@ -60,11 +64,21 @@ def run_agent_loop(client: OpenAI, user_message: str) -> str:
     Run the agent loop for a single user message.
     Returns the agent's final text response.
     """
-    model = pick_model(client)
-    messages = [{"role": "user", "content": user_message}]
+    models = pick_models(client)
+    messages = [
+        {
+            "role": "system",
+            "content": (
+                "You are a helpful assistant. Use your tools to answer the user's question. "
+                "When you get search results, write a concise summary in your own words. "
+                "Do not include any URLs or links in your response."
+            ),
+        },
+        {"role": "user", "content": user_message},
+    ]
 
     for turn in range(MAX_TURNS):
-        response = _call_model(client, model, messages)
+        response = _call_model(client, models, messages)
 
         message = response.choices[0].message
         finish_reason = response.choices[0].finish_reason
