@@ -47,7 +47,7 @@ python agent.py "Remember that my name is Alex, then greet me by name"
 
 ## Tutorial
 
-The `tutorial/` folder contains a six-part guided series:
+The `tutorial/` folder contains a six-part guided series also here is a follow along Video: https://youtu.be/7pWton1xAZc 
 
 | Doc | Topic |
 |-----|-------|
